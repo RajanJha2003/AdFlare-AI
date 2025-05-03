@@ -2,12 +2,38 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles } from "lucide-react";
+import axios from "axios";
+import { LoaderCircle, Sparkles } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
 const CreateAd = () => {
-    const [userInput, setUserInput] = React.useState();
+  const [userInput, setUserInput] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  
+  const GenerateAIVideoScript = async () => {
+    if (!userInput.trim()) {
+      alert("Please enter a topic.");
+      return;
+    }
+  
+    setLoading(true);
+  
+    try {
+      const result = await axios.post("/api/generate-script", {
+        topic: userInput,
+      });
+  
+      console.log("AI Response:", result.data);
+      // You might want to display this result on the UI too
+    } catch (error) {
+      console.error("Error generating script:", error);
+      alert("Failed to generate script. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   return (
     <div className=" mt-32 flex flex-col items-center justify-center">
         <div>
@@ -26,8 +52,12 @@ const CreateAd = () => {
         onChange={(e) => setUserInput(e.target.value)}
       />
 
-      <Button className={"mt-5 w-md"}>
-        <Sparkles />
+      <Button onClick={GenerateAIVideoScript} disabled={loading} className={"mt-5 w-md"}>
+
+        {
+          loading?<LoaderCircle className="animate-spin" />: <Sparkles />
+        }
+       
         Generate
       </Button>
     </div>
