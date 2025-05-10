@@ -2,14 +2,22 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { UserDetailContext } from "@/context/UserDetailContext";
+import { api } from "@/convex/_generated/api";
 import axios from "axios";
+import { useMutation } from "convex/react";
 import { LoaderCircle, Sparkles } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { useContext } from "react";
 
 const CreateAd = () => {
   const [userInput, setUserInput] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+
+  const {userDetail,setUserDetail}=useContext(UserDetailContext);
+
+
+  const CreateNewVideoData=useMutation(api.videoData.createNewVideoData);
   
   const GenerateAIVideoScript = async () => {
     if (!userInput.trim()) {
@@ -24,11 +32,22 @@ const CreateAd = () => {
         topic: userInput,
       });
   
-      console.log("AI Response:", result.data);
-      // You might want to display this result on the UI too
+      console.log("API Response:", result.data);
+  
+      // The API now guarantees we get proper JSON
+      const scriptVariant = result.data;
+  
+      const response = await CreateNewVideoData({
+        uid: userDetail?._id,
+        topic: userInput,
+        scriptVariant: scriptVariant
+      });
+  
+      console.log("Database response:", response);
+  
     } catch (error) {
       console.error("Error generating script:", error);
-      alert("Failed to generate script. Please try again.");
+      alert(`Failed to generate script: ${error.message}`);
     } finally {
       setLoading(false);
     }

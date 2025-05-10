@@ -24,6 +24,7 @@ export async function POST(req) {
           content: [{ type: "text", text: PROMPT }],
         },
       ],
+      response_format: { type: "json_object" }, // This enforces JSON response
     });
 
     const message = completion.choices?.[0]?.message;
@@ -32,8 +33,18 @@ export async function POST(req) {
       return NextResponse.json({ error: "No message returned" }, { status: 500 });
     }
 
-    console.log(message);
-    return NextResponse.json(message.content);
+    // Try to parse the content as JSON if it's a string
+    let content;
+    try {
+      content = typeof message.content === 'string' 
+        ? JSON.parse(message.content) 
+        : message.content;
+    } catch (e) {
+      // If parsing fails, wrap it in a JSON object
+      content = { generatedScript: message.content };
+    }
+
+    return NextResponse.json(content);
   } catch (err) {
     console.error("API error:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
