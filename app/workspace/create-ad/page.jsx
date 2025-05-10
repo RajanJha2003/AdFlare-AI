@@ -8,6 +8,7 @@ import axios from "axios";
 import { useMutation } from "convex/react";
 import { LoaderCircle, Sparkles } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useContext } from "react";
 
 const CreateAd = () => {
@@ -15,6 +16,7 @@ const CreateAd = () => {
   const [loading, setLoading] = React.useState(false);
 
   const {userDetail,setUserDetail}=useContext(UserDetailContext);
+  const router=useRouter();
 
 
   const CreateNewVideoData=useMutation(api.videoData.createNewVideoData);
@@ -44,7 +46,7 @@ const CreateAd = () => {
       });
   
       console.log("Database response:", response);
-  
+      router.push(`/workspace/create-ad/`+response);
     } catch (error) {
       console.error("Error generating script:", error);
       alert(`Failed to generate script: ${error.message}`);
